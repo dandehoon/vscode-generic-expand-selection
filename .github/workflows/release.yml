@@ -15,7 +15,7 @@ jobs:
     if:
     if: |
       contains(github.event.head_commit.message, 'Merge pull request #') &&
-      contains(github.event.head_commit.message, 'from dandehoon/release/v') &&
+      contains(github.event.head_commit.message, 'from dandehoon/release/v')
 
     steps:
     - name: Checkout code
@@ -99,7 +99,7 @@ jobs:
           - Or install from VS Code Extensions marketplace
         files: |
           out.vsix
-        draft: true
+        draft: false
         prerelease: false
 
     - name: Publish to VS Code Marketplace
