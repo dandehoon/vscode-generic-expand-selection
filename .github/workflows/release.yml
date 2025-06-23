@@ -12,7 +12,7 @@ jobs:
       contents: write
 
     # Only run if this is a merge commit (PR merge) and contains version bump
-    if: "contains(github.event.head_commit.message, 'release: bump version to v')"
+    if: "contains(github.event.head_commit.message, 'from dandehoon/release/v')"
 
     steps:
     - name: Checkout code
@@ -25,7 +25,7 @@ jobs:
       uses: actions-ecosystem/action-regex-match@v2
       with:
         text: ${{ github.event.head_commit.message }}
-        regex: 'release: bump version to v([\d.]+)'
+        regex: '.+from dandehoon/release/v([\d.]+)'
         flags: gm
 
     - name: Setup Node.js
@@ -69,18 +69,12 @@ jobs:
         git log --pretty=format:'- %s (%an)' $PREV_TAG..HEAD >> $GITHUB_OUTPUT
         echo 'EOF' >> $GITHUB_OUTPUT
 
-    - name: Create Tag
-      uses: mathieudutour/github-tag-action@v6.1
-      with:
-        custom_tag: v${{ steps.extract-version.outputs.group1 }}
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        tag_prefix: ''
-        tag_message: 'Release v${{ steps.extract-version.outputs.group1 }}'
-
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
+        token: ${{ secrets.GITHUB_TOKEN }}
         tag_name: v${{ steps.extract-version.outputs.group1 }}
+        target_commitish: ${{ github.sha }}
         name: Release v${{ steps.extract-version.outputs.group1 }}
         body: |
           ## Release v${{ steps.extract-version.outputs.group1 }}
@@ -96,7 +90,7 @@ jobs:
           - Or install from VS Code Extensions marketplace
         files: |
           out.vsix
-        draft: false
+        draft: true
         prerelease: false
 
     - name: Publish to VS Code Marketplace
