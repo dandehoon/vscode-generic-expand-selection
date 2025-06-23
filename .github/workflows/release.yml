@@ -12,7 +12,10 @@ jobs:
       contents: write
 
     # Only run if this is a merge commit (PR merge) and contains version bump
-    if: "contains(github.event.head_commit.message, 'from dandehoon/release/v')"
+    if:
+    if: |
+      contains(github.event.head_commit.message, 'Merge pull request #') &&
+      contains(github.event.head_commit.message, 'from dandehoon/release/v') &&
 
     steps:
     - name: Checkout code
@@ -25,7 +28,7 @@ jobs:
       uses: actions-ecosystem/action-regex-match@v2
       with:
         text: ${{ github.event.head_commit.message }}
-        regex: '.+from dandehoon/release/v([\d.]+)'
+        regex: '.+/release/v([\d.]+)'
         flags: gm
 
     - name: Setup Node.js
@@ -63,11 +66,17 @@ jobs:
     - name: Generate changelog
       id: changelog
       run: |
-        PREV_TAG=$(git describe --tags --abbrev=0 HEAD^)
-        echo "Previous tag: $PREV_TAG"
-        echo 'changelog<<EOF' >> $GITHUB_OUTPUT
-        git log --pretty=format:'- %s (%an)' $PREV_TAG..HEAD >> $GITHUB_OUTPUT
-        echo 'EOF' >> $GITHUB_OUTPUT
+        if git tag | grep . >/dev/null; then
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^)
+          echo "Previous tag: $PREV_TAG"
+          echo 'changelog<<EOF' >> $GITHUB_OUTPUT
+          git log --pretty=format:'- %s (%an)' $PREV_TAG..HEAD >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_OUTPUT
+        else
+          echo 'changelog<<EOF' >> $GITHUB_OUTPUT
+          git log --pretty=format:'- %s (%an)' >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_OUTPUT
+        fi
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
