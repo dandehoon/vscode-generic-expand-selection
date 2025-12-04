@@ -3,7 +3,7 @@
 	"displayName": "Generic Expand Selection",
 	"description": "Smartly expands selection to nearest scoped characters like quotes, brackets, and more.",
 	"publisher": "dandehoon",
-	"version": "1.3.2",
+	"version": "1.3.3",
 	"icon": "icons/icon_128.png",
 	"repository": {
 		"type": "git",
